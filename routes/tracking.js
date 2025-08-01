@@ -248,4 +248,76 @@ router.get('/payment-failed', async (req, res) => {
   }
 });
 
+// Track payment page visits (when users click payment links from emails)
+router.post('/payment-page-visit', async (req, res) => {
+  try {
+    const { email, trackingId, timestamp, userAgent, referrer } = req.body;
+    
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required' });
+    }
+
+    // Update status to indicate user clicked payment link
+    await trackingService.trackPaymentPageVisit(email, {
+      trackingId,
+      timestamp,
+      userAgent,
+      referrer
+    });
+
+    console.log(`💳 Payment page visit tracked for ${email}`);
+    
+    res.json({
+      success: true,
+      message: 'Payment page visit tracked'
+    });
+
+  } catch (error) {
+    console.error('❌ Error tracking payment page visit:', error);
+    res.status(500).json({
+      error: 'Failed to track payment page visit'
+    });
+  }
+});
+
+// Track payment abandonment (users who visited but didn't complete payment)
+router.post('/payment-abandonment', async (req, res) => {
+  try {
+    const { email, timestamp, timeOnPage } = req.body;
+    
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required' });
+    }
+
+    // Check if payment was completed during the session
+    const submission = await trackingService.checkSubmissionStatus(email);
+    if (submission && submission.status === 'Paid') {
+      console.log(`⏭️ Skipping abandonment tracking for ${email} - payment completed`);
+      return res.json({
+        success: true,
+        message: 'Payment completed, abandonment not tracked'
+      });
+    }
+
+    // Track abandonment
+    await trackingService.trackPaymentAbandonment(email, {
+      timestamp,
+      timeOnPage
+    });
+
+    console.log(`🚪 Payment abandonment tracked for ${email} (${timeOnPage}s on page)`);
+    
+    res.json({
+      success: true,
+      message: 'Payment abandonment tracked'
+    });
+
+  } catch (error) {
+    console.error('❌ Error tracking payment abandonment:', error);
+    res.status(500).json({
+      error: 'Failed to track payment abandonment'
+    });
+  }
+});
+
 module.exports = router; 

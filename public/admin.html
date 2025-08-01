@@ -110,9 +110,41 @@
         </div>
 
         <div class="section">
+            <h2>📊 Payment Analytics</h2>
+            <div class="stats" id="paymentStats">
+                <div class="stat-card">
+                    <div class="stat-number" id="paymentLinksClicked">-</div>
+                    <div>Payment Links Clicked</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="clickThroughRate">-</div>
+                    <div>Click-Through Rate</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="paymentConversionRate">-</div>
+                    <div>Payment Conversion</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="abandonmentRate">-</div>
+                    <div>Abandonment Rate</div>
+                </div>
+            </div>
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-number" id="paymentsAbandoned">-</div>
+                    <div>Payments Abandoned</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="paymentsFailed">-</div>
+                    <div>Payments Failed</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
             <h2>Submissions</h2>
-            <button class="btn" onclick="loadSubmissions()">🔄 Refresh</button>
-            <button class="btn" onclick="triggerFollowUps()">📧 Trigger Follow-ups</button>
+            <button class="btn" id="refreshBtn">🔄 Refresh</button>
+            <button class="btn" id="triggerFollowUpsBtn">📧 Trigger Follow-ups</button>
             <div id="submissionsTable"></div>
         </div>
 
@@ -126,130 +158,11 @@
                     <option value="reminder2">Reminder 2</option>
                     <option value="final">Final Reminder</option>
                 </select>
-                <button class="btn" onclick="sendTestEmail()">📤 Send Test Email</button>
+                <button class="btn" id="sendTestEmailBtn">📤 Send Test Email</button>
             </div>
         </div>
     </div>
 
-    <script>
-        // Load data on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            loadStats();
-            loadSubmissions();
-        });
-
-        async function loadStats() {
-            try {
-                const response = await fetch('/api/admin/stats');
-                const result = await response.json();
-                
-                if (result.success) {
-                    const data = result.data;
-                    document.getElementById('totalSubmissions').textContent = data.total || 0;
-                    document.getElementById('conversionRate').textContent = (data.conversionRate || 0) + '%';
-                    document.getElementById('paidCount').textContent = data.byStatus['Paid'] || 0;
-                    document.getElementById('emailsSent').textContent = data.byStatus['Email Sent'] || 0;
-                }
-            } catch (error) {
-                console.error('Error loading stats:', error);
-            }
-        }
-
-        async function loadSubmissions() {
-            try {
-                const response = await fetch('/api/admin/submissions');
-                const result = await response.json();
-                
-                if (result.success) {
-                    const submissions = result.data.submissions;
-                    displaySubmissions(submissions);
-                }
-            } catch (error) {
-                console.error('Error loading submissions:', error);
-            }
-        }
-
-        function displaySubmissions(submissions) {
-            const tableDiv = document.getElementById('submissionsTable');
-            
-            if (submissions.length === 0) {
-                tableDiv.innerHTML = '<p>No submissions found</p>';
-                return;
-            }
-
-            let html = `
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Phone</th>
-                            <th>Status</th>
-                            <th>Timestamp</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-            `;
-
-            submissions.forEach(sub => {
-                const statusClass = 'status-' + sub.status.toLowerCase().replace(/\s+/g, '-');
-                html += `
-                    <tr>
-                        <td>${sub.name}</td>
-                        <td>${sub.email}</td>
-                        <td>${sub.phone}</td>
-                        <td><span class="status ${statusClass}">${sub.status}</span></td>
-                        <td>${new Date(sub.timestamp).toLocaleString()}</td>
-                    </tr>
-                `;
-            });
-
-            html += '</tbody></table>';
-            tableDiv.innerHTML = html;
-        }
-
-        async function triggerFollowUps() {
-            try {
-                const response = await fetch('/api/admin/trigger-follow-ups', { method: 'POST' });
-                const result = await response.json();
-                
-                if (result.success) {
-                    alert('Follow-ups triggered successfully!');
-                    loadStats();
-                    loadSubmissions();
-                }
-            } catch (error) {
-                alert('Failed to trigger follow-ups');
-            }
-        }
-
-        async function sendTestEmail() {
-            const email = document.getElementById('testEmail').value;
-            const emailType = document.getElementById('emailType').value;
-            
-            if (!email) {
-                alert('Please enter an email address');
-                return;
-            }
-            
-            try {
-                const response = await fetch('/api/admin/send-email', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, emailType })
-                });
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    alert(result.message);
-                } else {
-                    alert(result.error);
-                }
-            } catch (error) {
-                alert('Failed to send test email');
-            }
-        }
-    </script>
+    <script src="admin.js"></script>
 </body>
 </html> 

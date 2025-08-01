@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment - Consulting Cohort 101</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px 30px;
+        }
+
+        .program-details {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .program-details h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .program-details ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .program-details li {
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .program-details li:last-child {
+            border-bottom: none;
+        }
+
+        .program-details li strong {
+            color: #667eea;
+        }
+
+        .payment-section {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .price {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .price-note {
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .simulation-controls {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .simulation-controls h4 {
+            color: #856404;
+            margin-bottom: 15px;
+        }
+
+        .payment-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 18px;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            margin: 10px 0;
+        }
+
+        .payment-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .payment-btn.success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        }
+
+        .payment-btn.failure {
+            background: linear-gradient(135deg, #dc3545 0%, #e74c3c 100%);
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .result-message {
+            display: none;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .result-message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .result-message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .user-info {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .user-info h4 {
+            color: #1976d2;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💳 Complete Your Payment</h1>
+            <p>Secure your spot in Consulting Cohort 101</p>
+        </div>
+
+        <div class="content">
+            <div class="user-info" id="userInfo">
+                <h4>Registration Details</h4>
+                <p><strong>Email:</strong> <span id="userEmail">Loading...</span></p>
+                <p><strong>Registration ID:</strong> <span id="registrationId">Loading...</span></p>
+            </div>
+
+            <div class="program-details">
+                <h3>🎯 Program Overview</h3>
+                <ul>
+                    <li><strong>Duration:</strong> 8 weeks intensive program</li>
+                    <li><strong>Format:</strong> Live online sessions + group projects</li>
+                    <li><strong>Mentorship:</strong> 1-on-1 sessions with industry experts</li>
+                    <li><strong>Network:</strong> Lifetime access to 500+ consultant alumni</li>
+                    <li><strong>Guarantee:</strong> 3x ROI within 6 months or money back</li>
+                    <li><strong>Start Date:</strong> Next cohort begins in 2 weeks</li>
+                </ul>
+            </div>
+
+            <div class="payment-section">
+                <div class="price">$997</div>
+                <div class="price-note">One-time payment • No hidden fees • 30-day money-back guarantee</div>
+
+                <div class="simulation-controls">
+                    <h4>⚠️ Demo Mode - Payment Simulation</h4>
+                    <p>This is a testing environment. Choose your desired outcome:</p>
+                </div>
+
+                <button class="payment-btn success" id="successBtn">
+                    ✅ Simulate Successful Payment
+                </button>
+                
+                <button class="payment-btn failure" id="failureBtn">
+                    ❌ Simulate Failed Payment
+                </button>
+            </div>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Processing your payment...</p>
+            </div>
+
+            <div class="result-message" id="resultMessage">
+                <h3 id="resultTitle"></h3>
+                <p id="resultText"></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="payment.js"></script>
+</body>
+</html>

@@ -37,6 +37,7 @@ app.use('/api/submissions', require('./routes/submissions'));
 app.use('/api/tracking', require('./routes/tracking'));
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/webhooks', require('./routes/webhooks'));
+app.use('/api/payment', require('./routes/payments'));
 
 // Serve the main form page
 app.get('/', (req, res) => {
@@ -46,6 +47,11 @@ app.get('/', (req, res) => {
 // Serve the admin dashboard
 app.get('/admin', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
+
+// Serve the payment page
+app.get('/payment', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'payment.html'));
 });
 
 // Health check endpoint
@@ -68,10 +74,24 @@ app.use((req, res) => {
 async function startServer() {
   try {
     // Initialize Google Sheets service
-    await googleSheetsService.initialize();
+    try {
+      await googleSheetsService.initialize();
+      console.log('✅ Google Sheets service initialized successfully');
+    } catch (sheetsError) {
+      console.error('⚠️ Google Sheets service failed to initialize:', sheetsError.message);
+      console.log('💡 The application will continue without Google Sheets functionality');
+      console.log('🔧 Please check your Google Sheets setup and restart the server');
+    }
     
     // Initialize email service
-    await emailService.initialize();
+    try {
+      await emailService.initialize();
+      console.log('✅ Email service initialized successfully');
+    } catch (emailError) {
+      console.error('⚠️ Email service failed to initialize:', emailError.message);
+      console.log('💡 The application will continue without email functionality');
+      console.log('🔧 Please check your email configuration and restart the server');
+    }
     
     // Start the scheduler
     schedulerService.start();
@@ -80,6 +100,13 @@ async function startServer() {
       console.log(`🚀 Server running on port ${PORT}`);
       console.log(`📝 Form available at: http://localhost:${PORT}`);
       console.log(`👨‍💼 Admin dashboard at: http://localhost:${PORT}/admin`);
+      
+      if (!process.env.GOOGLE_SHEETS_SPREADSHEET_ID) {
+        console.log('⚠️ Google Sheets not configured - form submissions will not be saved');
+      }
+      if (!process.env.EMAIL_USER) {
+        console.log('⚠️ Email service not configured - emails will not be sent');
+      }
     });
   } catch (error) {
     console.error('Failed to start server:', error);

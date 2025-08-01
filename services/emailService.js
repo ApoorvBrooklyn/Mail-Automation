@@ -10,7 +10,7 @@ class EmailService {
 
   async initialize() {
     try {
-      this.transporter = nodemailer.createTransporter({
+      this.transporter = nodemailer.createTransport({
         host: process.env.EMAIL_HOST,
         port: process.env.EMAIL_PORT,
         secure: false, // true for 465, false for other ports
@@ -39,6 +39,11 @@ class EmailService {
     return `${this.baseUrl}/api/tracking/link/${trackingId}?email=${encodeURIComponent(email)}&url=${encodeURIComponent(originalUrl)}`;
   }
 
+  generatePaymentLink(email) {
+    const trackingId = uuidv4();
+    return `${this.baseUrl}/payment?email=${encodeURIComponent(email)}&trackingId=${trackingId}`;
+  }
+
   generateReplyLink(email) {
     const trackingId = uuidv4();
     return `${this.baseUrl}/api/tracking/reply/${trackingId}?email=${encodeURIComponent(email)}`;
@@ -47,7 +52,7 @@ class EmailService {
   async sendConfirmationEmail(submission) {
     try {
       const trackingPixel = this.generateTrackingPixel(submission.email);
-      const paymentLink = this.generateTrackingLink(submission.email, 'https://payment.example.com/consulting-cohort');
+      const paymentLink = this.generatePaymentLink(submission.email);
       const replyLink = this.generateReplyLink(submission.email);
 
       const emailContent = `
@@ -149,7 +154,7 @@ class EmailService {
   async sendReminderEmail1(submission) {
     try {
       const trackingPixel = this.generateTrackingPixel(submission.email);
-      const paymentLink = this.generateTrackingLink(submission.email, 'https://payment.example.com/consulting-cohort');
+      const paymentLink = this.generatePaymentLink(submission.email);
       const replyLink = this.generateReplyLink(submission.email);
 
       const emailContent = `
@@ -228,7 +233,7 @@ class EmailService {
   async sendReminderEmail2(submission) {
     try {
       const trackingPixel = this.generateTrackingPixel(submission.email);
-      const paymentLink = this.generateTrackingLink(submission.email, 'https://payment.example.com/consulting-cohort');
+      const paymentLink = this.generatePaymentLink(submission.email);
       const replyLink = this.generateReplyLink(submission.email);
 
       const emailContent = `
@@ -320,7 +325,7 @@ class EmailService {
   async sendFinalReminder(submission) {
     try {
       const trackingPixel = this.generateTrackingPixel(submission.email);
-      const paymentLink = this.generateTrackingLink(submission.email, 'https://payment.example.com/consulting-cohort');
+      const paymentLink = this.generatePaymentLink(submission.email);
       const replyLink = this.generateReplyLink(submission.email);
 
       const emailContent = `

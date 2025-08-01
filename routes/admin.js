@@ -8,8 +8,9 @@ const trackingService = require('../services/trackingService');
 router.get('/stats', async (req, res) => {
   try {
     const allSubmissions = await googleSheetsService.getAllSubmissions();
+    const trackingService = require('../services/trackingService');
     
-    // Calculate statistics
+    // Calculate basic statistics
     const stats = {
       total: allSubmissions.length,
       byStatus: {},
@@ -32,6 +33,12 @@ router.get('/stats', async (req, res) => {
     stats.recentActivity = allSubmissions
       .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
       .slice(0, 10);
+
+    // Get payment analytics
+    const paymentAnalytics = await trackingService.getPaymentAnalytics();
+    if (paymentAnalytics) {
+      stats.paymentAnalytics = paymentAnalytics;
+    }
 
     res.json({
       success: true,
