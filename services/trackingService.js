@@ -224,7 +224,7 @@ class TrackingService {
     try {
       const submissions = await googleSheetsService.getSubmissionsByStatus('Email Sent');
       const timeAgo = new Date();
-      timeAgo.setMinutes(timeAgo.getMinutes() - 5); // Changed from 2 days to 5 minutes for demo
+      timeAgo.setMinutes(timeAgo.getMinutes() - 3); // Changed from 2 days to 3 minutes for demo
       
       console.log(`🔍 Checking ${submissions.length} users with 'Email Sent' status for Reminder 1`);
       
