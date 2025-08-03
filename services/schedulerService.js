@@ -10,14 +10,14 @@ class SchedulerService {
   start() {
     console.log('🕐 Starting email scheduler...');
 
-    // Run every hour to check for follow-up emails
-    const followUpJob = new cron.CronJob('0 * * * *', async () => {
+    // Run every 5 minutes to check for follow-up emails
+    const followUpJob = new cron.CronJob('*/5 * * * *', async () => {
       console.log('⏰ Running scheduled follow-up check...');
       await this.processFollowUps();
     }, null, true, 'America/New_York');
 
-    // Run every 6 hours to check for final reminders
-    const finalReminderJob = new cron.CronJob('0 */6 * * *', async () => {
+    // Run every 5 minutes to check for final reminders
+    const finalReminderJob = new cron.CronJob('*/5 * * * *', async () => {
       console.log('⏰ Running final reminder check...');
       await this.processFinalReminders();
     }, null, true, 'America/New_York');
