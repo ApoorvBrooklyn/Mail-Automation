@@ -85,40 +85,17 @@ CRON_SECRET="your-cron-secret"
 
 ## File Structure Changes Made
 
-Your project has been converted from a traditional Express.js server to Vercel serverless functions:
+Your project has been converted from a traditional Express.js server to Vercel serverless functions. **The API functions have been consolidated to stay within Vercel's Hobby plan limit of 12 functions:**
 
 ```
 gradNext/
-├── api/                          # Vercel API functions
-│   ├── admin/
-│   │   ├── stats.js
-│   │   ├── submissions.js
-│   │   ├── follow-ups.js
-│   │   ├── send-email.js
-│   │   └── health.js
-│   ├── payment/
-│   │   ├── index.js
-│   │   ├── process.js
-│   │   ├── success.js
-│   │   └── failed.js
-│   ├── submissions/
-│   │   ├── index.js
-│   │   └── [email].js
-│   ├── tracking/
-│   │   ├── pixel/[trackingId].js
-│   │   ├── link/[trackingId].js
-│   │   ├── reply/[trackingId].js
-│   │   ├── payment/[trackingId].js
-│   │   ├── payment-success.js
-│   │   ├── payment-failed.js
-│   │   ├── payment-page-visit.js
-│   │   └── payment-abandonment.js
-│   ├── webhooks/
-│   │   ├── payment-confirmation.js
-│   │   ├── email-events.js
-│   │   ├── test.js
-│   │   └── scheduler.js
-│   └── health.js
+├── api/                          # Vercel API functions (6 total)
+│   ├── admin.js                  # Admin dashboard, stats, email triggers
+│   ├── health.js                 # Health check endpoint
+│   ├── payment.js                # Payment processing and callbacks
+│   ├── submissions.js            # Form submissions and user management
+│   ├── tracking.js               # Email tracking, clicks, payment flows
+│   └── webhooks.js               # External webhooks and scheduled tasks
 ├── public/                       # Static files (served by Vercel)
 ├── services/                     # Unchanged
 ├── routes/                       # Legacy (can be removed after testing)
@@ -127,16 +104,49 @@ gradNext/
 └── package.json                  # Updated scripts
 ```
 
+Each consolidated function handles multiple routes based on the request path and method.
+
 ## API Endpoints
 
 After deployment, your API endpoints will be available at:
 
-- **Submissions**: `https://your-app.vercel.app/api/submissions`
-- **Admin**: `https://your-app.vercel.app/api/admin/stats`
-- **Tracking**: `https://your-app.vercel.app/api/tracking/pixel/[trackingId]`
-- **Payments**: `https://your-app.vercel.app/api/payment/process`
-- **Webhooks**: `https://your-app.vercel.app/api/webhooks/test`
-- **Health**: `https://your-app.vercel.app/api/health`
+- **Submissions**: 
+  - POST `https://your-app.vercel.app/api/submissions` (submit form)
+  - GET `https://your-app.vercel.app/api/submissions` (get all submissions)
+  - GET `https://your-app.vercel.app/api/submissions/[email]` (get specific submission)
+  - PATCH `https://your-app.vercel.app/api/submissions/[email]` (update status)
+
+- **Admin**: 
+  - GET `https://your-app.vercel.app/api/admin/stats` (dashboard statistics)
+  - GET `https://your-app.vercel.app/api/admin/submissions` (filtered submissions)
+  - GET `https://your-app.vercel.app/api/admin/follow-ups` (users for follow-up)
+  - POST `https://your-app.vercel.app/api/admin/trigger-follow-ups` (trigger emails)
+  - POST `https://your-app.vercel.app/api/admin/send-email` (send manual email)
+  - GET `https://your-app.vercel.app/api/admin/health` (service health check)
+
+- **Tracking**: 
+  - GET `https://your-app.vercel.app/api/tracking/pixel/[trackingId]` (email open tracking)
+  - GET `https://your-app.vercel.app/api/tracking/link/[trackingId]` (link click tracking)
+  - GET `https://your-app.vercel.app/api/tracking/reply/[trackingId]` (reply tracking)
+  - GET `https://your-app.vercel.app/api/tracking/payment/[trackingId]` (payment page)
+  - GET `https://your-app.vercel.app/api/tracking/payment-success` (payment success)
+  - GET `https://your-app.vercel.app/api/tracking/payment-failed` (payment failure)
+  - POST `https://your-app.vercel.app/api/tracking/payment-page-visit` (track visits)
+  - POST `https://your-app.vercel.app/api/tracking/payment-abandonment` (track abandonment)
+
+- **Payments**: 
+  - GET `https://your-app.vercel.app/api/payment` (payment page redirect)
+  - POST `https://your-app.vercel.app/api/payment/process` (process payment)
+  - GET `https://your-app.vercel.app/api/payment/success` (success callback)
+  - GET `https://your-app.vercel.app/api/payment/failed` (failure callback)
+
+- **Webhooks**: 
+  - POST `https://your-app.vercel.app/api/webhooks/payment-confirmation` (payment gateway webhook)
+  - POST `https://your-app.vercel.app/api/webhooks/email-events` (email service webhook)
+  - POST `https://your-app.vercel.app/api/webhooks/test` (test webhook)
+  - GET/POST `https://your-app.vercel.app/api/webhooks/scheduler` (Vercel Cron endpoint)
+
+- **Health**: `https://your-app.vercel.app/api/health` (general health check)
 
 ## Static Files
 
